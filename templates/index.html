@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="robots" content="noindex, nofollow">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <title>Bible Query</title>
+</head>
+<body>
+
+<nav class="navbar navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="index.html">Bible Query</a>
+  </div>
+</nav>
+
+<div class="container-fluid mt-3">
+    <div class="row">
+        <h4>Enter Your Query:</h4>
+    </div>
+    <form method="POST" action="">
+    {{ form.csrf_token }}
+        <div class="row align-items-center">
+            <div class="col-auto">
+            {{ form.language.label }}
+            {{ form.language }}
+            </div>
+
+            <div class="col-auto">
+            {{ form.title.label }}
+            {{ form.title }}
+            </div>
+
+            <div class="col-auto">
+            {{ form.book.label }}
+            {{ form.book }}
+            </div>
+
+            <div class="col-auto">
+            {{ form.chapter.label }}
+            {{ form.chapter }}
+            </div>
+
+            <div class="col-auto">
+            {{ form.startverse.label }}
+            {{ form.startverse }}
+            </div>
+
+            <div class="col-auto">
+            {{ form.endverse.label }}
+            {{ form.endverse }}
+            </div>
+        </div>
+    <br>
+        <div class="row">
+            <div class="col-1">
+            {{ form.submit }}
+            </div>
+        </div>
+    </form>
+
+</div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+<script>
+    let langselect = document.getElementById('language')
+    let titleselect = document.getElementById('title')
+    let bookselect = document.getElementById('book');
+    let chapterselect = document.getElementById('chapter');
+    let startverseselect =  document.getElementById('startverse');
+    let endverseselect = document.getElementById('endverse');
+
+    langselect.onchange = function() {
+        lang = langselect.value
+        fetch('/language/' + lang).then(function(response) {
+            response.json().then(function(data) {
+                let optionHTML = '';
+                for (let title of data.titlesofbibles) {
+                    optionHTML += '<option value="' + title.id + '">' + title.english_title + '</option>';
+                }
+                titleselect.innerHTML = optionHTML;
+            });
+        });
+    }
+    titleselect.onchange = function() {
+        bibleid = titleselect.value
+        fetch('/book/' + bibleid).then(function(response) {
+            response.json().then(function(data) {
+                let optionHTML = '';
+                for (let bk of data.books) {
+                    optionHTML += '<option value="' + bk.book + '">' + bk.book + '</option>';
+                }
+                bookselect.innerHTML = optionHTML;
+            });
+        });
+    }
+    bookselect.onchange = function() {
+        book = bookselect.value
+        fetch('/chapter/' + book).then(function(response) {
+            response.json().then(function(data) {
+                let optionHTML = '';
+                for (let chapter of data.chapters) {
+                    optionHTML += '<option value="' + chapter.chapter + '">' + chapter.chapter + '</option>';
+                }
+                chapterselect.innerHTML = optionHTML;
+            });
+        });
+    }
+    chapterselect.onchange = function() {
+        chapter = chapterselect.value
+        fetch('/startverse/' + chapter).then(function(response) {
+            response.json().then(function(data) {
+                let optionHTML = '';
+                for (let verse of data.startverses) {
+                    optionHTML += '<option value="' + verse.start_verse + '">' + verse.start_verse + '</option>';
+                }
+                startverseselect.innerHTML = optionHTML;
+            });
+        });
+    }
+    startverseselect.onchange = function() {
+        chapter = chapterselect.value
+        fetch('/startverse/' + chapter).then(function (response) {
+            response.json().then(function (data) {
+                let optionHTML = '';
+                for (let verse of data.startverses) {
+                    optionHTML += '<option value="' + verse.start_verse + '">' + verse.start_verse + '</option>';
+                }
+                endverseselect.innerHTML = optionHTML;
+            });
+        });
+    }
+</script>
+
+</html>
