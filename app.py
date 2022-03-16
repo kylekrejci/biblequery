@@ -11,7 +11,7 @@ csrf = CSRFProtect(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bible.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = "heres-my-super-super-secret-key"
+app.config['SECRET_KEY'] = "72241f6036fb17b40cb4e9eaabdbf294200283c39b0478914c526e16ab3eb93a"
 
 def get_db_connection():
     conn = sqlite3.connect('bible.sqlite')
