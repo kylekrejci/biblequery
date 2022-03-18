@@ -6,13 +6,8 @@ from flask_wtf.csrf import CSRFProtect
 from wtforms import SubmitField, SelectField, validators
 
 app = Flask(__name__)
-
+app.config.from_pyfile('config.py')
 csrf = CSRFProtect(app)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bible.sqlite'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['FLASK_ENV'] = 'production'
-app.config['SECRET_KEY'] = "72241f6036fb17b40cb4e9eaabdbf294200283c39b0478914c526e16ab3eb93a"
 
 def get_db_connection():
     conn = sqlite3.connect('bible.sqlite')
@@ -97,7 +92,7 @@ def index():
     form.language.choices = languagechoicesarray1
     if request.method == "POST":
         range0 = request.form['startverse']
-        range1 = request.form['endverse']
+        range1 = int(request.form['endverse']) + 1
         return redirect(url_for('results'))
     return render_template("index.html", form=form)
 
@@ -131,9 +126,9 @@ def chapter(book):
     global globalbook, globaltitleid
     globalbook = book
     conn = get_db_connection()
-    chapters = conn.execute('SELECT DISTINCT version_id, chapter FROM verse WHERE book=(?) AND version_id=(?);', (book, globaltitleid))
+    chapters = conn.execute('SELECT DISTINCT chapter FROM verse WHERE book=(?) AND version_id=(?);', (book, globaltitleid))
     chapters = chapters.fetchall()
-    chapterarray = [{'version_id': '', 'chapter': ''}]
+    chapterarray = [{'chapter': ''}]
     for i in chapters:
         j = dict(i)
         chapterarray.append(j)
@@ -144,9 +139,9 @@ def startverse(chapter):
     global globalchapter
     globalchapter = chapter
     conn = get_db_connection()
-    verses = conn.execute('SELECT DISTINCT version_id, start_verse FROM verse WHERE book=(?) AND chapter=(?) AND version_id=(?);', (globalbook, chapter, globaltitleid))
+    verses = conn.execute('SELECT DISTINCT start_verse FROM verse WHERE book=(?) AND chapter=(?) AND version_id=(?);', (globalbook, chapter, globaltitleid))
     verses = verses.fetchall()
-    sversesarray = [{'version_id': '', 'start_verse': ''}]
+    sversesarray = [{'start_verse': ''}]
     for i in verses:
         j = dict(i)
         sversesarray.append(j)
@@ -155,9 +150,9 @@ def startverse(chapter):
 @app.route("/endverse/<chapter>")
 def endverse(chapter):
     conn = get_db_connection()
-    verses = conn.execute('SELECT DISTINCT version_id, end_verse FROM verse WHERE book=(?) AND chapter=(?) AND version_id=(?);', (globalbook, chapter, globaltitleid))
+    verses = conn.execute('SELECT DISTINCT end_verse FROM verse WHERE book=(?) AND chapter=(?) AND version_id=(?);', (globalbook, chapter, globaltitleid))
     verses = verses.fetchall()
-    eversesarray = [{'version_id': '', 'end_verse': ''}]
+    eversesarray = [{'end_verse': ''}]
     for i in verses:
         j = dict(i)
         eversesarray.append(j)
