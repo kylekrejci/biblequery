@@ -10,11 +10,14 @@
 <body>
 <nav class="navbar navbar-light bg-light">
   <div class="container-fluid">
-    <a class="navbar-brand" href="index.html">Bible Query</a>
+    <a class="navbar-brand" href="index.html">Read the Bible</a>
   </div>
 </nav>
 {% block content %}
 <div class="container-fluid mt-3">
+    <div class="row">
+    <h4>{{ globalbook }}:{{ globalchapter }}</h4>
+    </div>
     {% for i in result  %}
         <p>{{  i  }}</p>
     {% endfor %}

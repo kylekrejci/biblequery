@@ -11,6 +11,7 @@ csrf = CSRFProtect(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bible.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['FLASK_ENV'] = 'production'
 app.config['SECRET_KEY'] = "72241f6036fb17b40cb4e9eaabdbf294200283c39b0478914c526e16ab3eb93a"
 
 def get_db_connection():
@@ -72,8 +73,8 @@ class Reset(FlaskForm):
 
 globallanguage = ""
 globaltitleid = ""
-globalchapter = ""
 globalbook = ""
+globalchapter = ""
 range0 = 0
 range1 = 0
 verselist = []
@@ -86,7 +87,7 @@ def index():
     languagechoices = conn.execute('SELECT DISTINCT language_english from version;')
     languagechoices = languagechoices.fetchall()
     languagechoicesarray0 = []
-    languagechoicesarray1 = []
+    languagechoicesarray1 = [""]
     for i in languagechoices:
         j = dict(i)
         languagechoicesarray0.append(j)
@@ -106,7 +107,7 @@ def language(lang):
     conn = get_db_connection()
     titlequery = conn.execute('SELECT id, english_title from version where language_english=(?);', (lang, ))
     titlequery = titlequery.fetchall()
-    titlearray = []
+    titlearray = [{'id': '', 'english_title': ''}]
     for i in titlequery:
         j = dict(i)
         titlearray.append(j)
@@ -119,7 +120,7 @@ def titleofbible(bibleid):
     conn = get_db_connection()
     bookquery = conn.execute('SELECT DISTINCT book from verse where version_id=(?) ORDER BY canon_order;', (bibleid, ))
     bookquery = bookquery.fetchall()
-    bookarray = []
+    bookarray = [{'book': ''}]
     for i in bookquery:
         j = dict(i)
         bookarray.append(j)
@@ -132,7 +133,7 @@ def chapter(book):
     conn = get_db_connection()
     chapters = conn.execute('SELECT DISTINCT version_id, chapter FROM verse WHERE book=(?) AND version_id=(?);', (book, globaltitleid))
     chapters = chapters.fetchall()
-    chapterarray = []
+    chapterarray = [{'version_id': '', 'chapter': ''}]
     for i in chapters:
         j = dict(i)
         chapterarray.append(j)
@@ -145,13 +146,22 @@ def startverse(chapter):
     conn = get_db_connection()
     verses = conn.execute('SELECT DISTINCT version_id, start_verse FROM verse WHERE book=(?) AND chapter=(?) AND version_id=(?);', (globalbook, chapter, globaltitleid))
     verses = verses.fetchall()
-    versesarray = []
+    sversesarray = [{'version_id': '', 'start_verse': ''}]
     for i in verses:
         j = dict(i)
-        versesarray.append(j)
-    for k in versesarray:
-        k.pop('version_id')
-    return jsonify({'startverses': versesarray})
+        sversesarray.append(j)
+    return jsonify({'startverses': sversesarray})
+
+@app.route("/endverse/<chapter>")
+def endverse(chapter):
+    conn = get_db_connection()
+    verses = conn.execute('SELECT DISTINCT version_id, end_verse FROM verse WHERE book=(?) AND chapter=(?) AND version_id=(?);', (globalbook, chapter, globaltitleid))
+    verses = verses.fetchall()
+    eversesarray = [{'version_id': '', 'end_verse': ''}]
+    for i in verses:
+        j = dict(i)
+        eversesarray.append(j)
+    return jsonify({'endverses': eversesarray})
 
 @app.route("/results", methods=["GET", "POST"])
 def results():
@@ -163,7 +173,7 @@ def results():
     resultarray0 = []
     resultarray1 = []
     resultarray2 = []
-    resultarray3 = []
+    resultarray3 = [""]
     for i in resulttext:
         j = dict(i)
         resultarray0.append(j)
@@ -174,7 +184,10 @@ def results():
     for m in resultarray2:
         n = str(m)[1:-1]
         resultarray3.append(n)
-    return render_template("results.html", result=resultarray3)
+    for o in biblebooks:
+        if o[0] == globalbook:
+            p = o[1]
+    return render_template("results.html", result=resultarray3, globalbook=p, globalchapter=globalchapter)
 
 if __name__ == '__main__':
     app.run()
