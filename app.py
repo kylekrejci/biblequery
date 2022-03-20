@@ -166,7 +166,7 @@ def endverse(chapter):
 
 @app.route("/results", methods=["GET", "POST"])
 def results():
-    global verselist
+    global verselist, range1, range0, globalchapter, globalbook, globaltitleid, globallanguage
     verselist = range(int(range0), int(range1))
     conn = get_db_connection()
     resulttext = conn.execute('SELECT text FROM verse WHERE version_id=(?) AND book=(?) AND chapter=(?) AND start_verse BETWEEN (?) and (?);', (globaltitleid, globalbook, globalchapter, range0, range1))
@@ -189,6 +189,13 @@ def results():
         if o[0] == globalbook:
             p = o[1]
     conn.close()
+    globallanguage = ""
+    globaltitleid = ""
+    globalbook = ""
+    globalchapter = ""
+    range0 = 0
+    range1 = 0
+    verselist = []
     return render_template("results.html", result=resultarray3, globalbook=p, globalchapter=globalchapter)
 
 if __name__ == '__main__':
