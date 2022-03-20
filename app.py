@@ -94,6 +94,7 @@ def index():
         range0 = request.form['startverse']
         range1 = int(request.form['endverse']) + 1
         return redirect(url_for('results'))
+    conn.close()
     return render_template("index.html", form=form)
 
 @app.route("/language/<lang>")
@@ -106,6 +107,7 @@ def language(lang):
     for i in titlequery:
         j = dict(i)
         titlearray.append(j)
+    conn.close()
     return jsonify({'titlesofbibles': titlearray})
 
 @app.route("/book/<bibleid>")
@@ -119,6 +121,7 @@ def titleofbible(bibleid):
     for i in bookquery:
         j = dict(i)
         bookarray.append(j)
+    conn.close()
     return jsonify({'books': bookarray})
 
 @app.route("/chapter/<book>")
@@ -132,6 +135,7 @@ def chapter(book):
     for i in chapters:
         j = dict(i)
         chapterarray.append(j)
+    conn.close()
     return jsonify({'chapters': chapterarray})
 
 @app.route("/startverse/<chapter>")
@@ -145,6 +149,7 @@ def startverse(chapter):
     for i in verses:
         j = dict(i)
         sversesarray.append(j)
+    conn.close()
     return jsonify({'startverses': sversesarray})
 
 @app.route("/endverse/<chapter>")
@@ -156,6 +161,7 @@ def endverse(chapter):
     for i in verses:
         j = dict(i)
         eversesarray.append(j)
+    conn.close()
     return jsonify({'endverses': eversesarray})
 
 @app.route("/results", methods=["GET", "POST"])
@@ -182,6 +188,7 @@ def results():
     for o in biblebooks:
         if o[0] == globalbook:
             p = o[1]
+    conn.close()
     return render_template("results.html", result=resultarray3, globalbook=p, globalchapter=globalchapter)
 
 if __name__ == '__main__':
