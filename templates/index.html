@@ -79,7 +79,7 @@
             response.json().then(function(data) {
                 let optionHTML = '';
                 for (let title of data.titlesofbibles) {
-                    optionHTML += '<option value="' + title.id + '">' + title.english_title + '</option>';
+                    optionHTML += '<option value="' + title.ident + '">' + title.english_title + '</option>';
                 }
                 titleselect.innerHTML = optionHTML;
             });
@@ -91,7 +91,7 @@
             response.json().then(function(data) {
                 let optionHTML = '';
                 for (let bk of data.books) {
-                    optionHTML += '<option value="' + bk.book + '">' + bk.book + '</option>';
+                    optionHTML += '<option value="' + bk + '">' + bk + '</option>';
                 }
                 bookselect.innerHTML = optionHTML;
             });
@@ -102,8 +102,8 @@
         fetch('/chapter/' + book).then(function(response) {
             response.json().then(function(data) {
                 let optionHTML = '';
-                for (let chapter of data.chapters) {
-                    optionHTML += '<option value="' + chapter.chapter + '">' + chapter.chapter + '</option>';
+                for (let chp of data.chapters) {
+                    optionHTML += '<option value="' + chp + '">' + chp + '</option>';
                 }
                 chapterselect.innerHTML = optionHTML;
             });
@@ -114,8 +114,8 @@
         fetch('/startverse/' + chapter).then(function(response) {
             response.json().then(function(data) {
                 let optionHTML = '';
-                for (let verse of data.startverses) {
-                    optionHTML += '<option value="' + verse.start_verse + '">' + verse.start_verse + '</option>';
+                for (let sverse of data.startverses) {
+                    optionHTML += '<option value="' + sverse + '">' + sverse + '</option>';
                 }
                 startverseselect.innerHTML = optionHTML;
             });
@@ -126,8 +126,8 @@
         fetch('/endverse/' + chapter).then(function (response) {
             response.json().then(function (data) {
                 let optionHTML = '';
-                for (let verse of data.endverses) {
-                    optionHTML += '<option value="' + verse.end_verse + '">' + verse.end_verse + '</option>';
+                for (let everse of data.endverses) {
+                    optionHTML += '<option value="' + everse + '">' + everse + '</option>';
                 }
                 endverseselect.innerHTML = optionHTML;
             });
