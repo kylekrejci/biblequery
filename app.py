@@ -112,7 +112,7 @@ def chapter(book):
         j = i[0]
         chapterarray.append(j)
     conn.close()
-    return (jsonify({'chapters': chapterarray}), book)
+    return jsonify({'chapters': chapterarray})
 
 @app.route("/startverse/<chapter>")
 def startverse(chapter):
@@ -127,7 +127,7 @@ def startverse(chapter):
         j = i[0]
         sversesarray.append(j)
     conn.close()
-    return jsonify({'startverses': sversesarray}), chapter
+    return jsonify({'startverses': sversesarray})
 
 @app.route("/endverse/<chapter>")
 def endverse(chapter):
