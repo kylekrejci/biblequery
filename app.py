@@ -28,7 +28,6 @@ biblebooks = [("GEN", "Genesis"), ("EXO", "Exodus"), ("LEV", "Leviticus"), ("NUM
               ("MAN", "Prayer of Manasseh"), ("1MA", "1 Maccabees"), ("2MA", "2 Maccabees"), ("3MA", "3 Maccabees"),
               ("4MA", "4 Maccabees"), ("PSS", "Psalms of Solomon"), ("PS2", "Psalm 151")]
 
-
 class Biblequery(FlaskForm):
     language = SelectField("Language:", [validators.DataRequired()], id='language')
     title = SelectField("Title:", [validators.DataRequired()], id='title')
@@ -38,16 +37,15 @@ class Biblequery(FlaskForm):
     endverse = SelectField("Ending Verse:", [validators.DataRequired()], id='endverse')
     submit = SubmitField("Submit")
 
-class Reset(FlaskForm):
-    resetbutton = SubmitField("Reset")
+# class Reset(FlaskForm):
+#     resetbutton = SubmitField("Reset")
 
-globallanguage = ""
-globaltitleid = ""
+globallang = ""
+globalbibleid = ""
 globalbook = ""
-globalchapter = ""
+globalchapter = 0
 range0 = 0
 range1 = 0
-verselist = []
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -57,8 +55,7 @@ def index():
     cursor = conn.cursor()
     cursor.execute('SELECT DISTINCT language_english from version;')
     languagechoices = cursor.fetchall()
-    languagechoicesarray = []
-    languagechoicesarray1 = ["", ]
+    languagechoicesarray = ["",]
     for i in languagechoices:
         j = i[0]
         languagechoicesarray.append(j)
@@ -72,7 +69,8 @@ def index():
 
 @app.route("/language/<lang>")
 def language(lang):
-    global globallanguage
+    global globallang
+    globallang = lang
     conn = sqlite3.connect('bible.sqlite')
     cursor = conn.cursor()
     cursor.execute('SELECT id, english_title from version where language_english=(?);', (lang, ))
@@ -88,11 +86,11 @@ def language(lang):
 
 @app.route("/book/<bibleid>")
 def titleofbible(bibleid):
-    global globaltitleid
-    globaltitleid = bibleid
+    global globalbibleid
+    globalbibleid = bibleid
     conn = sqlite3.connect('bible.sqlite')
     cursor = conn.cursor()
-    cursor.execute('SELECT DISTINCT book from verse where version_id=(?) ORDER BY canon_order;', (bibleid, ))
+    cursor.execute('SELECT DISTINCT book from verse where version_id=(?);', (bibleid, ))
     bookquery = cursor.fetchall()
     bookarray = ["", ]
     for i in bookquery:
@@ -103,39 +101,39 @@ def titleofbible(bibleid):
 
 @app.route("/chapter/<book>")
 def chapter(book):
-    global globalbook, globaltitleid
+    global globalbook, globalbibleid
     globalbook = book
     conn = sqlite3.connect('bible.sqlite')
     cursor = conn.cursor()
-    cursor.execute('SELECT DISTINCT chapter FROM verse WHERE book=(?) AND version_id=(?);', (book, globaltitleid))
+    cursor.execute('SELECT DISTINCT chapter FROM verse WHERE book=(?) AND version_id=(?);', (book, globalbibleid))
     chapters = cursor.fetchall()
     chapterarray = ["", ]
     for i in chapters:
         j = i[0]
         chapterarray.append(j)
     conn.close()
-    return jsonify({'chapters': chapterarray})
+    return (jsonify({'chapters': chapterarray}), book)
 
 @app.route("/startverse/<chapter>")
 def startverse(chapter):
-    global globalchapter
+    global globalbook, globalchapter, globalbibleid
     globalchapter = chapter
     conn = sqlite3.connect('bible.sqlite')
     cursor = conn.cursor()
-    cursor.execute('SELECT DISTINCT start_verse FROM verse WHERE book=(?) AND chapter=(?) AND version_id=(?);', (globalbook, chapter, globaltitleid))
+    cursor.execute('SELECT DISTINCT start_verse FROM verse WHERE book=(?) AND chapter=(?) AND version_id=(?);', (globalbook, chapter, globalbibleid))
     verses = cursor.fetchall()
     sversesarray = ["", ]
     for i in verses:
         j = i[0]
         sversesarray.append(j)
     conn.close()
-    return jsonify({'startverses': sversesarray})
+    return jsonify({'startverses': sversesarray}), chapter
 
 @app.route("/endverse/<chapter>")
 def endverse(chapter):
     conn = sqlite3.connect('bible.sqlite')
     cursor = conn.cursor()
-    cursor.execute('SELECT DISTINCT end_verse FROM verse WHERE book=(?) AND chapter=(?) AND version_id=(?);', (globalbook, chapter, globaltitleid))
+    cursor.execute('SELECT DISTINCT end_verse FROM verse WHERE book=(?) AND chapter=(?) AND version_id=(?);', (globalbook, chapter, globalbibleid))
     verses = cursor.fetchall()
     eversesarray = ["", ]
     for i in verses:
@@ -144,17 +142,18 @@ def endverse(chapter):
     conn.close()
     return jsonify({'endverses': eversesarray})
 
-@app.route("/results", methods=["GET"])
+@app.route("/results", methods=["GET", "POST"])
 def results():
-    global verselist, range1, range0, globalchapter, globalbook, globaltitleid, globallanguage
+    global range1, range0, globalchapter, globalbook, globalbibleid
     verselist = range(int(range0), int(range1))
     conn = sqlite3.connect('bible.sqlite')
     cursor = conn.cursor()
-    cursor.execute('SELECT text FROM verse WHERE version_id=(?) AND book=(?) AND chapter=(?) AND start_verse BETWEEN (?) and (?);', (globaltitleid, globalbook, globalchapter, range0, range1))
+    cursor.execute('SELECT text FROM verse WHERE version_id=(?) AND book=(?) AND chapter=(?) AND start_verse BETWEEN (?) and (?);', (globalbibleid, globalbook, globalchapter, range0, range1))
     resulttext = cursor.fetchall()
     resultarray0 = []
     resultarray1 = []
     resultarray2 = ["", ]
+    p = ""
     for i in resulttext:
         j = i[0]
         resultarray0.append(j)
@@ -166,15 +165,7 @@ def results():
         if o[0] == globalbook:
             p = o[1]
     conn.close()
-    globalchapter1 = globalchapter
-    globallanguage = ""
-    globaltitleid = ""
-    globalbook = ""
-    globalchapter = ""
-    range0 = 0
-    range1 = 0
-    verselist = None
-    return render_template("results.html", result1=resultarray2, globalbook1=p, globalchapter1=globalchapter1)
+    return render_template("results.html", result1=resultarray2, globalbook1=p, globalchapter1=globalchapter)
 
 if __name__ == '__main__':
     app.run()
