@@ -4,6 +4,13 @@ from flask_wtf import FlaskForm
 from flask_wtf.csrf import CSRFProtect
 from wtforms import SubmitField, SelectField, validators
 from flask_session import Session
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
+
+sentry_sdk.init(
+    dsn="https://6335441f41514a9f99a3fd95aab63d92@o1184702.ingest.sentry.io/6302970",
+    integrations=[FlaskIntegration()],
+    traces_sample_rate=1.0)
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
@@ -165,6 +172,10 @@ def results():
         session["range1"] = 0
         return redirect(url_for('index'))
     return render_template("results.html", result1=resultarray2, globalbook1=p, globalchapter1=session["globalchapter"], reset=reset)
+
+# @app.route('/debug-sentry')
+# def trigger_error():
+#     division_by_zero = 1 / 0
 
 if __name__ == '__main__':
     app.run()
