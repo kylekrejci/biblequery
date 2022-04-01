@@ -39,13 +39,11 @@ class Biblequery(FlaskForm):
     endverse = SelectField("Ending Verse:", [validators.DataRequired()], id='endverse')
     submit = SubmitField("Submit")
 
-# class Reset(FlaskForm):
-#     resetbutton = SubmitField("Reset")
-
+class Reset(FlaskForm):
+    resetbutton = SubmitField("Reset")
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    global range0, range1
     form = Biblequery()
     conn = sqlite3.connect('bible.sqlite')
     cursor = conn.cursor()
@@ -157,7 +155,16 @@ def results():
         if o[0] == session["globalbook"]:
             p = o[1]
     conn.close()
-    return render_template("results.html", result1=resultarray2, globalbook1=p, globalchapter1=session["globalchapter"])
+    reset = Reset()
+    if request.method == "POST":
+        session["globallang"] = ""
+        session["globalbibleid"] = ""
+        session["globalbook"] = ""
+        session["globalchapter"] = 0
+        session["range0"] = 0
+        session["range1"] = 0
+        return redirect(url_for('index'))
+    return render_template("results.html", result1=resultarray2, globalbook1=p, globalchapter1=session["globalchapter"], reset=reset)
 
 if __name__ == '__main__':
     app.run()

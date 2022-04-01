@@ -11,17 +11,17 @@
 
 <nav class="navbar navbar-light bg-light">
   <div class="container-fluid">
-    <a class="navbar-brand" href="index.html">Read the Bible</a>
+      <a class="navbar-brand" href="index.html"><h1 class="display-5">Read the Bible</h1></a>
   </div>
 </nav>
 
 <div class="container-fluid mt-3">
     <div class="row">
-        <h4>Enter Your Query:</h4>
+        <h4 class="pb-3">Enter Your Query:</h4>
     </div>
     <form method="POST" action="">
     {{ form.csrf_token }}
-        <div class="row align-items-center">
+        <div class="row justify-content-start">
             <div class="col-auto">
             {{ form.language.label }}
             {{ form.language }}
@@ -53,7 +53,7 @@
             </div>
         </div>
     <br>
-        <div class="row">
+        <div class="row justify-content-start">
             <div class="col-1">
             {{ form.submit }}
             </div>
